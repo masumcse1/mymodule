@@ -23,7 +23,7 @@ public class CustomEndpointResource {
 	protected Map<String, Object> parameterMap = null;
 	
 
-	protected void test() {
+	protected void setRequestResponse() {
 		parameterMap = new HashMap<>(execution.getParameters());
 		Endpoint endpoint = execution.getEndpoint();
 
@@ -33,14 +33,12 @@ public class CustomEndpointResource {
 			try {
 				String val = matcher.group(pathParameter.toString());
 				parameterMap.put(pathParameter.toString(), val);
-				System.out.println("------------>>"+val);
 			} catch (Exception e) {
 				throw new IllegalArgumentException(
 						"cannot find param " + pathParameter + " in " + execution.getPathInfo());
 			}
 		}
-		System.out.println("----------333-->>");
-
+	
 		// Set budget variables
 		parameterMap.put(EndpointVariables.MAX_BUDGET, execution.getBudgetMax());
 		parameterMap.put(EndpointVariables.BUDGET_UNIT, execution.getBudgetUnit());

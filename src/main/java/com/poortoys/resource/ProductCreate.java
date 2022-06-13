@@ -1,11 +1,8 @@
 package com.poortoys.resource;
 
-
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -18,20 +15,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.meveo.admin.exception.BusinessException;
-import org.meveo.api.rest.technicalservice.EndpointExecution;
 import org.meveo.api.rest.technicalservice.EndpointExecutionFactory;
 import org.meveo.model.persistence.JacksonUtil;
-import org.meveo.model.technicalservice.endpoint.Endpoint;
 import org.meveo.model.technicalservice.endpoint.EndpointHttpMethod;
-import org.meveo.model.technicalservice.endpoint.EndpointPathParameter;
-import org.meveo.model.technicalservice.endpoint.EndpointVariables;
 import org.meveo.script.CreateMyProduct;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.Gson;
 
+import util.CustomEndpointResource;
 import util.Mydatasmappper;
 
 /**
@@ -40,7 +36,7 @@ import util.Mydatasmappper;
  */
 @Path("myproduct")
 @RequestScoped
-public class ProductCreate {
+public class ProductCreate extends CustomEndpointResource {
 
 	@Inject
 	private CreateMyProduct myProduct;
@@ -57,46 +53,17 @@ public class ProductCreate {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String saveProduct(Mydatasmappper mydatasmappper) throws ServletException, IOException {
+	public Response saveProduct(Mydatasmappper mydatasmappper) throws ServletException, IOException {
 		Map<String, Object> parameters = new HashMap<>();
 		String requestBody = new Gson().toJson(mydatasmappper);
 		parameters.put("REQUEST_BODY", requestBody);
-	    parameters = JacksonUtil.fromString(requestBody, new TypeReference<Map<String, Object>>() {	});
+		parameters = JacksonUtil.fromString(requestBody, new TypeReference<Map<String, Object>>() {
+		});
 
-		final EndpointExecution execution = endpointExecutionFactory.getExecutionBuilder(req, res)
-				.setParameters(parameters).setMethod(EndpointHttpMethod.POST).createEndpointExecution();
-
-		Map<String, Object> parameterMap = new HashMap<>(execution.getParameters());
-		//////////////////////////////////////////////////////////////////// final
-		Endpoint endpoint = execution.getEndpoint();
-
-		Matcher matcher = endpoint.getPathRegex().matcher(execution.getPathInfo());
-		matcher.find();
-		for (EndpointPathParameter pathParameter : endpoint.getPathParametersNullSafe()) {
-			try {
-				String val = matcher.group(pathParameter.toString());
-				parameterMap.put(pathParameter.toString(), val);
-				System.out.println("------------>>" + val);
-			} catch (Exception e) {
-				throw new IllegalArgumentException(
-						"cannot find param " + pathParameter + " in " + execution.getPathInfo());
-			}
-		}
-		System.out.println("----------333-->>");
-
-		// Set budget variables
-		parameterMap.put(EndpointVariables.MAX_BUDGET, execution.getBudgetMax());
-		parameterMap.put(EndpointVariables.BUDGET_UNIT, execution.getBudgetUnit());
-		parameterMap.put(EndpointVariables.MAX_DELAY, execution.getDelayMax());
-		parameterMap.put(EndpointVariables.DELAY_UNIT, execution.getDelayUnit());
-		parameterMap.put("request", execution.getRequest());
-
-		if (endpoint.isSynchronous()) {
-			parameterMap.put("response", execution.getResponse());
-
-		}
-
-		/////////////////////////////////////////////////////////////////
+		execution = endpointExecutionFactory.getExecutionBuilder(req, res).setParameters(parameters)
+				.setMethod(EndpointHttpMethod.POST).createEndpointExecution();
+		setRequestResponse();
+		Status status = null;
 		try {
 			myProduct.setProduct(mydatasmappper.getProduct());
 			myProduct.init(parameterMap);
@@ -104,11 +71,12 @@ public class ProductCreate {
 			myProduct.finalize(parameterMap);
 			String result = myProduct.getResult();
 			System.out.println("ProductCreate restult:  : " + result);
+			status = Status.valueOf(result);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 		}
 
-		return "Hello, world";
+		return Response.status(status).type(MediaType.APPLICATION_JSON).build();
 
 	}
 

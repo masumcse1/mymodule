@@ -16,6 +16,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.rest.technicalservice.EndpointExecution;
@@ -26,6 +28,7 @@ import org.meveo.model.technicalservice.endpoint.EndpointPathParameter;
 import org.meveo.model.technicalservice.endpoint.EndpointVariables;
 import org.meveo.script.DeleteMyProduct;
 
+import util.CustomEndpointResource;
 
 /**
  * Sample JAX-RS resources.
@@ -33,8 +36,8 @@ import org.meveo.script.DeleteMyProduct;
  */
 @Path("myproduct")
 @RequestScoped
-public class ProductDelete {
-  
+public class ProductDelete extends CustomEndpointResource {
+
 	@Inject
 	private DeleteMyProduct myProduct;
 
@@ -51,66 +54,32 @@ public class ProductDelete {
 	@Path("/{uuids}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String getMessage(@PathParam("uuids") String productid) throws ServletException {
+	public Response getMessage(@PathParam("uuids") String productid) throws ServletException {
 
-		System.out.println("----------111-->>"+req.getPathInfo());
-		
-		final EndpointExecution execution = endpointExecutionFactory.getExecutionBuilder(req, res)
-				.setParameters(new HashMap<>(req.getParameterMap())).setMethod(EndpointHttpMethod.GET)
+	
+		execution = endpointExecutionFactory.getExecutionBuilder(req, res)
+				.setParameters(new HashMap<>(req.getParameterMap())).setMethod(EndpointHttpMethod.DELETE)
 				.createEndpointExecution();
 
-		Map<String, Object> parameterMap = new HashMap<>(execution.getParameters());
-		System.out.println("----------222-->>");
-		//////////////////////////////////////////////////////////////////// final
-		Endpoint endpoint = execution.getEndpoint();
-
-		Matcher matcher = endpoint.getPathRegex().matcher(execution.getPathInfo());
-		matcher.find();
-		for (EndpointPathParameter pathParameter : endpoint.getPathParametersNullSafe()) {
-			try {
-				String val = matcher.group(pathParameter.toString());
-				parameterMap.put(pathParameter.toString(), val);
-				System.out.println("------------>>"+val);
-			} catch (Exception e) {
-				throw new IllegalArgumentException(
-						"cannot find param " + pathParameter + " in " + execution.getPathInfo());
-			}
-		}
-		System.out.println("----------333-->>");
-
-		// Set budget variables
-		parameterMap.put(EndpointVariables.MAX_BUDGET, execution.getBudgetMax());
-		parameterMap.put(EndpointVariables.BUDGET_UNIT, execution.getBudgetUnit());
-		parameterMap.put(EndpointVariables.MAX_DELAY, execution.getDelayMax());
-		parameterMap.put(EndpointVariables.DELAY_UNIT, execution.getDelayUnit());
-		parameterMap.put("request", execution.getRequest());
-
-		if (endpoint.isSynchronous()) {
-			parameterMap.put("response", execution.getResponse());
-
-		}
-
-		/////////////////////////////////////////////////////////////////
-		System.out.println("----------444-->>"+req.getPathInfo());
+		setRequestResponse();
+		Status status = null;
 		try {
 			myProduct.setProductId(productid);
 			myProduct.init(parameterMap);
 			myProduct.execute(parameterMap);
 			myProduct.finalize(parameterMap);
-			String result1=myProduct.getResult();
-			System.out.println("#######ProductDelete result####"+result1);
-			
+			String result = myProduct.getResult();
+			System.out.println("#######ProductDelete result####" + result);
+			status = Status.valueOf(result);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 		}
+
 		
-		System.out.println("----------555-->>"+req.getPathInfo());
-		return "Hello, world";
+		return Response.status(status).type(MediaType.APPLICATION_JSON).build();
 
 	}
 
 }
-
-
 
 //http://localhost:8080/mymodule/api/myproduct

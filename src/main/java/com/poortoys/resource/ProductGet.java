@@ -14,6 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.technicalservice.endpoint.EndpointHttpMethod;
@@ -43,31 +45,29 @@ public class ProductGet extends CustomEndpointResource {
 
 	@GET
 	@Path("/{uuids}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String getMessage(@PathParam("uuids") String productid) throws ServletException {
-
-		System.out.println("----------111-->>" + req.getPathInfo());
-
+	public Response getProduct(@PathParam("uuids") String productid) throws ServletException {
+	
 		execution = endpointExecutionFactory.getExecutionBuilder(req, res)
 				.setParameters(new HashMap<>(req.getParameterMap())).setMethod(EndpointHttpMethod.GET)
 				.createEndpointExecution();
-		
-		test();
-		
+
+		setRequestResponse();
+	
+		Status status = null;
 		try {
 			myProduct.init(parameterMap);
 			myProduct.execute(parameterMap);
 			myProduct.finalize(parameterMap);
-			String result1 = myProduct.getResult();
-			System.out.println("#######ProductGet result####" + result1);
-
+			String result= myProduct.getResult();
+			System.out.println("#######ProductGet result####" + result);
+			status = Status.valueOf(result);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("----------555-->>" + req.getPathInfo());
-		return "Hello, world";
+		return Response.status(status).type(MediaType.APPLICATION_JSON).build();
 
 	}
 
