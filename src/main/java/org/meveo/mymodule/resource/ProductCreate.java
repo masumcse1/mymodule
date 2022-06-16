@@ -1,5 +1,6 @@
-package com.poortoys.resource;
+package org.meveo.mymodule.resource;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,9 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -22,7 +22,7 @@ import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.rest.technicalservice.EndpointExecutionFactory;
 import org.meveo.model.persistence.JacksonUtil;
 import org.meveo.model.technicalservice.endpoint.EndpointHttpMethod;
-import org.meveo.script.UpdateMyProduct;
+import org.meveo.script.CreateMyProduct;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.Gson;
@@ -36,10 +36,10 @@ import util.Mydatasmappper;
  */
 @Path("myproduct")
 @RequestScoped
-public class ProductUpdate extends CustomEndpointResource {
+public class ProductCreate extends CustomEndpointResource {
 
 	@Inject
-	private UpdateMyProduct myProduct;
+	private CreateMyProduct myProduct;
 
 	@Inject
 	private EndpointExecutionFactory endpointExecutionFactory;
@@ -50,13 +50,10 @@ public class ProductUpdate extends CustomEndpointResource {
 	@Context
 	private HttpServletResponse res;
 
-	@PUT
-	@Path("/{uuids}")
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateProduct(@PathParam("uuids") String productid, Mydatasmappper mydatasmappper)
-			throws ServletException {
-
+	public Response saveProduct(Mydatasmappper mydatasmappper) throws ServletException, IOException {
 		Map<String, Object> parameters = new HashMap<>();
 		String requestBody = new Gson().toJson(mydatasmappper);
 		parameters.put("REQUEST_BODY", requestBody);
@@ -73,7 +70,7 @@ public class ProductUpdate extends CustomEndpointResource {
 			myProduct.execute(parameterMap);
 			myProduct.finalize(parameterMap);
 			String result = myProduct.getResult();
-			System.out.println("ProductUpdate restult:  : " + result);
+			System.out.println("ProductCreate restult:  : " + result);
 			status = Status.valueOf(result);
 		} catch (BusinessException e) {
 			e.printStackTrace();
@@ -84,5 +81,3 @@ public class ProductUpdate extends CustomEndpointResource {
 	}
 
 }
-
-//http://localhost:8080/mymodule/api/myproduct
