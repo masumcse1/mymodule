@@ -6,6 +6,9 @@ import java.util.regex.Matcher;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
 
 import org.meveo.api.rest.technicalservice.EndpointExecution;
 import org.meveo.api.rest.technicalservice.EndpointExecutionFactory;
@@ -18,6 +21,13 @@ public class CustomEndpointResource {
 	
 	@Inject
 	protected EndpointExecutionFactory endpointExecutionFactory;
+	
+
+	@Context
+	private HttpServletRequest req;
+
+	@Context
+	private HttpServletResponse res;
 	
 	protected EndpointExecution execution = null;
 	protected Map<String, Object> parameterMap = null;
