@@ -1,6 +1,7 @@
 package org.meveo.mymodule.resource;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -31,24 +32,16 @@ public class ProductGet extends CustomEndpointResource {
 	@Inject
 	private GetMyProduct myProduct;
 
-	@Context
-	private HttpServletRequest req;
-
-	@Context
-	private HttpServletResponse res;
-
+	
 	@GET
 	@Path("/{uuids}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getProduct(@PathParam("uuids") String productid) throws ServletException {
-	
-		execution = endpointExecutionFactory.getExecutionBuilder(req, res)
-				.setParameters(new HashMap<>(req.getParameterMap())).setMethod(EndpointHttpMethod.GET)
-				.createEndpointExecution();
-
-		setRequestResponse();
-	
+		 Map<String, Object> parameterMap = new HashMap<String, Object>();
+		
+		 parameterMap.put("productid", productid);
+		 parameterMap.put("delayUnit", "SECONDS");
 		Status status = null;
 		try {
 			myProduct.init(parameterMap);
@@ -61,7 +54,8 @@ public class ProductGet extends CustomEndpointResource {
 			e.printStackTrace();
 		}
 
-		return Response.status(status).type(MediaType.APPLICATION_JSON).build();
+		return Response.ok(status, MediaType.APPLICATION_JSON).build();
+		//return Response.status(status).type(MediaType.APPLICATION_JSON).build();
 
 	}
 

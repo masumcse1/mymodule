@@ -64,6 +64,9 @@ public class ProductCreate extends CustomEndpointResource {
 				.setMethod(EndpointHttpMethod.POST).createEndpointExecution();
 		setRequestResponse();
 		Status status = null;
+		
+		parameterMap.remove("request");
+		parameterMap.remove("response");
 		try {
 			myProduct.setProduct(mydatasmappper.getProduct());
 			myProduct.init(parameterMap);
