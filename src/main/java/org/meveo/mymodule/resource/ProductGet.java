@@ -25,13 +25,13 @@ public class ProductGet extends CustomEndpointResource {
 	private GetMyProduct myProduct;
 
 	@GET
-	@Path("/{uuids}")
+	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getProduct(@PathParam("uuids") String productid) throws ServletException {
+	public Response getProduct(@PathParam("uuid") String uuid) throws ServletException {
 		String result = null;
 		parameterMap = new HashMap<String, Object>();
-		parameterMap.put("productid", productid);
+		parameterMap.put("uuid", uuid);
 		setRequestResponse();
 		try {
 			myProduct.init(parameterMap);

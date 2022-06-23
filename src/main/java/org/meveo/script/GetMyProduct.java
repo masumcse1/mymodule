@@ -19,43 +19,43 @@ import org.slf4j.LoggerFactory;
 @RequestScoped
 public class GetMyProduct extends Script {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GetMyProduct.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GetMyProduct.class);
 
-    @Inject
-    private CrossStorageApi crossStorageApi;
+	@Inject
+	private CrossStorageApi crossStorageApi;
 
-    @Inject
-    private RepositoryService repositoryService;
+	@Inject
+	private RepositoryService repositoryService;
 
-    private String productid;
+	private String uuid;
 
-    private String result;
+	private String result;
 
-    public String getResult() {
-        return this.result;
-    }
+	public String getResult() {
+		return this.result;
+	}
 
-    public void setProductid(String productid) {
-        this.productid = productid;
-    }
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 
-    @Override
-    public void execute(Map<String, Object> parameters) throws BusinessException {
-    	productid= (String) parameters.get("productid");
-        LOG.info("Get Product: {}----------masum---###", productid);
-        Repository defaultRepo = repositoryService.findDefaultRepository();
-        Map<String, Object> resultMap = new HashMap<>();
-        try {
-            Product product = crossStorageApi.find(defaultRepo, productid, Product.class);
-            resultMap.put("status", "success");
-            resultMap.put("result", product);
-        } catch (EntityDoesNotExistsException e) {
-            String errorMessage = String.format("Product with id: %s does not exist.", productid);
-            LOG.error(errorMessage, e);
-            resultMap.put("status", "fail");
-            resultMap.put("result", errorMessage);
-        }
-        result = new Gson().toJson(resultMap);
-        super.execute(parameters);
-    }
+	@Override
+	public void execute(Map<String, Object> parameters) throws BusinessException {
+		uuid = (String) parameters.get("uuid");
+		LOG.info("Get Product: {}----------", uuid);
+		Repository defaultRepo = repositoryService.findDefaultRepository();
+		Map<String, Object> resultMap = new HashMap<>();
+		try {
+			Product product = crossStorageApi.find(defaultRepo, uuid, Product.class);
+			resultMap.put("status", "success");
+			resultMap.put("result", product);
+		} catch (EntityDoesNotExistsException e) {
+			String errorMessage = String.format("uuid : %s does not exist.", uuid);
+			LOG.error(errorMessage, e);
+			resultMap.put("status", "fail");
+			resultMap.put("result", errorMessage);
+		}
+		result = new Gson().toJson(resultMap);
+		super.execute(parameters);
+	}
 }
