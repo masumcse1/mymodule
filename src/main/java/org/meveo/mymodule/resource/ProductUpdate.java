@@ -29,16 +29,17 @@ public class ProductUpdate extends CustomEndpointResource {
 	@Path("/{uuids}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateProduct(@PathParam("uuids") String productid, ProductDto productDto) throws ServletException {
+	public Response updateProduct(@PathParam("uuids") String uuid, ProductDto productDto) throws ServletException {
 
 	
 		parameterMap = new HashMap<String, Object>();
-		parameterMap.put("productid", productid);
+		parameterMap.put("uuid", uuid);
 		parameterMap.put("product", productDto.getProduct());
 		parameterMap.put("type", productDto.getType());
 		setRequestResponse();
 		String result = null;
 		try {
+			myProduct.setUuid(uuid);
 			myProduct.setProduct(productDto.getProduct());
 			myProduct.init(parameterMap);
 			myProduct.execute(parameterMap);

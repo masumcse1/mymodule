@@ -25,17 +25,17 @@ public class ProductDelete extends CustomEndpointResource {
 	private DeleteMyProduct myProduct;
 
 	@DELETE
-	@Path("/{uuids}")
+	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getMessage(@PathParam("uuids") String productid) throws ServletException {
+	public Response getMessage(@PathParam("uuid") String uuid) throws ServletException {
 
 		parameterMap = new HashMap<String, Object>();
-		parameterMap.put("productid", productid);
+		parameterMap.put("uuid", uuid);
 		setRequestResponse();
 		String result = null;
 		try {
-			myProduct.setProductId(productid);
+			myProduct.setUuid(uuid);
 			myProduct.init(parameterMap);
 			myProduct.execute(parameterMap);
 			myProduct.finalize(parameterMap);

@@ -24,7 +24,7 @@ public class UpdateMyProduct extends Script {
     @Inject
     private RepositoryService repositoryService;
 
-    private String productId;
+    private String uuid;
 
     private Product product;
 
@@ -34,39 +34,41 @@ public class UpdateMyProduct extends Script {
         return this.result;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
 
-    public void setProduct(Product product) {
+    public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+
+	public void setProduct(Product product) {
         this.product = product;
     }
 
     @Override
     public void execute(Map<String, Object> parameters) throws BusinessException {
-        LOG.info("Update Product: {}, {}", productId, product);
+        LOG.info("Update Product: {}, {}", uuid, product);
         Repository defaultRepo = repositoryService.findDefaultRepository();
         Map<String, Object> resultMap = new HashMap<>();
         try {
-            crossStorageApi.find(defaultRepo, productId, Product.class);
+            crossStorageApi.find(defaultRepo, uuid, Product.class);
         } catch (EntityDoesNotExistsException e) {
-            String errorMessage = String.format("Product with id: %s does not exist.", productId);
+            String errorMessage = String.format("Product with id: %s does not exist.", uuid);
             LOG.error(errorMessage, e);
             resultMap.put("status", "fail");
             resultMap.put("result", errorMessage);
         }
         // make sure updated cart uses specified cartId
-        product.setUuid(productId);
+        product.setUuid(uuid);
         try {
             crossStorageApi.createOrUpdate(defaultRepo, product);
         } catch (Exception e) {
-            String errorMessage = String.format("Failed to update product: %s", productId);
+            String errorMessage = String.format("Failed to update product: %s", uuid);
             LOG.error(errorMessage, e);
             resultMap.put("status", "fail");
             resultMap.put("result", errorMessage);
         }
         try {
-            Product updatedProduct = crossStorageApi.find(defaultRepo, productId, Product.class);
+            Product updatedProduct = crossStorageApi.find(defaultRepo, uuid, Product.class);
             resultMap.put("status", "success");
             resultMap.put("result", updatedProduct);
         } catch (EntityDoesNotExistsException e) {

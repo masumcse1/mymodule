@@ -16,41 +16,41 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 
 public class DeleteMyProduct extends Script {
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteMyProduct.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DeleteMyProduct.class);
 
-    @Inject
-    private CrossStorageApi crossStorageApi;
+	@Inject
+	private CrossStorageApi crossStorageApi;
 
-    @Inject
-    private RepositoryService repositoryService;
+	@Inject
+	private RepositoryService repositoryService;
 
-    private String productId;
-    private String result;
+	private String uuid;
+	private String result;
 
-    public String getResult() {
-        return this.result;
-    }
+	public String getResult() {
+		return this.result;
+	}
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 
-    @Override
-    public void execute(Map<String, Object> parameters) throws BusinessException {
-        LOG.info("Delete Product: {}", productId);
-        Repository defaultRepo = repositoryService.findDefaultRepository();
-        Map<String, Object> resultMap = new HashMap<>();
-        try {
-            crossStorageApi.remove(defaultRepo, productId, Product.class);
-            resultMap.put("status", "success");
-            resultMap.put("result", "Successfully deleted Product: " + productId);
-        } catch(Exception e) {
-            String errorMessage = String.format("Failed to delete Product: %s", productId);
-            LOG.error(errorMessage, e);
-            resultMap.put("status", "fail");
-            resultMap.put("result", errorMessage);
-        }
-        result = new Gson().toJson(resultMap);
-        super.execute(parameters);
-    }
+	@Override
+	public void execute(Map<String, Object> parameters) throws BusinessException {
+		LOG.info("Delete Product: {}", uuid);
+		Repository defaultRepo = repositoryService.findDefaultRepository();
+		Map<String, Object> resultMap = new HashMap<>();
+		try {
+			crossStorageApi.remove(defaultRepo, uuid, Product.class);
+			resultMap.put("status", "success");
+			resultMap.put("result", "Successfully deleted Product: " + uuid);
+		} catch (Exception e) {
+			String errorMessage = String.format("Failed to delete Product: %s", uuid);
+			LOG.error(errorMessage, e);
+			resultMap.put("status", "fail");
+			resultMap.put("result", errorMessage);
+		}
+		result = new Gson().toJson(resultMap);
+		super.execute(parameters);
+	}
 }
