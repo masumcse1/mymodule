@@ -1,8 +1,8 @@
-package util;
+package org.meveo.mymodule.dto;
 
 import org.meveo.model.customEntities.Product;
 
-public class Mydatasmappper {
+public class ProductDto {
 	
 	String type;
 	Product product;
@@ -11,14 +11,14 @@ public class Mydatasmappper {
 	public String getType() {
 		return type;
 	}
-	public Mydatasmappper(String type, Product product) {
+	public ProductDto(String type, Product product) {
 		super();
 		this.type = type;
 		this.product = product;
 	}
 	
 	
-	public Mydatasmappper() {
+	public ProductDto() {
 		super();
 	}
 	public void setType(String type) {
